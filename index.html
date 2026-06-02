@@ -105,7 +105,8 @@
             align-items: center;
             justify-content: center;
             flex-grow: 1;
-            margin-bottom: 100px;
+            margin-bottom: 40px;
+            padding: 0 20px;
         }
 
         .logo {
@@ -174,6 +175,63 @@
             border: 1px solid #5f6368;
         }
 
+        /* ==========================================================================
+           BLOC MISES À JOUR (CHANGELOG)
+           ========================================================================== */
+        .updates-box {
+            margin-top: 45px;
+            background-color: #171717;
+            border: 1px solid #3c4043;
+            border-radius: 12px;
+            padding: 18px 22px;
+            max-width: 584px;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .updates-title {
+            font-size: 14px;
+            color: #8ab4f8;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .updates-list {
+            list-style: none;
+            font-size: 13px;
+            color: #bdc1c6;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .updates-list li {
+            line-height: 1.4;
+            border-bottom: 1px solid #2a2b2e;
+            padding-bottom: 6px;
+        }
+
+        .updates-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .updates-version {
+            color: #34a853;
+            font-weight: bold;
+            margin-right: 6px;
+            font-family: monospace;
+        }
+
+        /* ==========================================================================
+           FOOTER STYLE
+           ========================================================================== */
         footer {
             background: #171717;
             font-size: 14px;
@@ -338,7 +396,6 @@
 </head>
 <body>
 
-    <!-- ================= BARRE D'ADRESSE DU NAVIGATEUR ACTIVE ================= -->
     <div class="browser-bar">
         <div class="browser-buttons">
             <span class="dot red"></span>
@@ -348,7 +405,6 @@
         <input type="text" class="browser-address" id="browser-url" value="https://kill-man.github.io/Kill-search/" onkeydown="checkBrowserNavigation(event)">
     </div>
 
-    <!-- ================= VUE ACCUEIL ================= -->
     <div id="home-view">
         <header>
             <a href="#">Mon Compte</a>
@@ -372,6 +428,15 @@
                 <button class="btn" onclick="triggerHomeSearch()">Recherche Kill</button>
                 <button class="btn" type="button">J'ai de la chance</button>
             </div>
+
+            <div class="updates-box">
+                <div class="updates-title">🚀 Mises à jour & Nouveautés</div>
+                <ul class="updates-list">
+                    <li><span class="updates-version">v1.3</span> **Recherche Précise :** Intégration du système de détection intelligente. Taper "youtube", "google", "wikipedia" ou "github" affiche désormais le vrai site officiel sécurisé en position N°1 !</li>
+                    <li><span class="updates-version">v1.2</span> **Navigation Intégrale :** Remplacement des faux liens morts (`#`). Tous les résultats générés ouvrent maintenant de vrais onglets et de vraies pages web.</li>
+                    <li><span class="updates-version">v1.1</span> **Barre d'adresse Active :** La barre supérieure du navigateur simulé est devenue fonctionnelle. Saisir une URL et appuyer sur *Entrée* déclenche une navigation réelle.</li>
+                </ul>
+            </div>
         </div>
 
         <footer>
@@ -389,7 +454,6 @@
         </footer>
     </div>
 
-    <!-- ================= VUE RÉSULTATS ================= -->
     <div id="results-view">
         <div class="results-header">
             <div class="logo-small" onclick="goHome()">Kill-search</div>
@@ -402,17 +466,14 @@
 
         <div class="results-stats" id="search-stats"></div>
 
-        <!-- BLOC IMAGES ASSOCIEES -->
         <div class="images-box" id="images-panel">
             <h3 class="images-title">Images associées à la recherche</h3>
             <div class="images-grid" id="images-display-grid"></div>
         </div>
 
-        <!-- RÉSULTATS DE RECHERCHE -->
         <div class="results-container" id="results-list"></div>
     </div>
 
-    <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
         function checkBrowserNavigation(event) {
             if (event.key === "Enter") {
@@ -432,7 +493,6 @@
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
 
-            // Redirection directe si on tape une vraie URL complète
             if ((textRecherche.includes('.') && !textRecherche.includes(' ')) || textRecherche.startsWith('http')) {
                 let lienDirect = textRecherche;
                 if (!/^https?:\/\//i.test(lienDirect)) {
@@ -442,18 +502,14 @@
                 return;
             }
 
-            // Synchroniser les entrées
             document.getElementById('home-input').value = textRecherche;
             document.getElementById('results-input').value = textRecherche;
 
-            // Afficher l'écran des résultats
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            // Mettre à jour la barre d'adresse simulée
             document.getElementById('browser-url').value = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
 
-            // Générer le bloc d'images dynamiques
             const panelImages = document.getElementById('images-panel');
             const grilleImages = document.getElementById('images-display-grid');
             grilleImages.innerHTML = ""; 
@@ -465,9 +521,7 @@
             grilleImages.innerHTML = htmlImages;
             panelImages.style.display = "block";
 
-            // =================================================================
             // BASE DE DONNÉES DES VRAIS SITES OFFICIELS
-            // =================================================================
             const sitesOfficiels = {
                 "youtube": {
                     titre: "YouTube - Regardez des vidéos et de la musique en ligne",
@@ -499,7 +553,6 @@
             let totalResultats = 100;
             let indexDepartLoop = 1;
 
-            // Vérifier si la recherche correspond à un de nos mots clés officiels
             const motCleMinuscule = textRecherche.toLowerCase();
             let siteOfficielTrouve = null;
 
@@ -510,17 +563,15 @@
                 }
             }
 
-            // Si on a trouvé le vrai site, on l'injecte obligatoirement en POSITION N°1
             if (siteOfficielTrouve) {
                 htmlContenu += '<div class="result-item" style="background-color: #282a2d; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #8ab4f8;">' +
                     '<span class="result-url" style="color: #34a853; font-weight: bold;">Site Officiel › ' + siteOfficielTrouve.displayUrl + '</span>' +
                     '<a href="' + siteOfficielTrouve.url + '" target="_blank" class="result-title">1. ' + siteOfficielTrouve.titre + '</a>' +
                     '<span class="result-snippet">' + siteOfficielTrouve.snippet + '</span>' +
                 '</div>';
-                indexDepartLoop = 2; // La boucle commencera au numéro 2 car le 1 est pris par le vrai site !
+                indexDepartLoop = 2;
             }
 
-            // BANQUE DE DONNÉES SIMULÉE POUR LE RESTE DES 100 RÉSULTATS
             const extensions = ["fr", "org", "com", "net", "info"];
             const plateformes = ["wikipedia", "actus-web", "dictionnaire-langue", "videostube", "resocial", "forum-entraide", "blog-tech", "portail-savoir"];
             
@@ -540,7 +591,6 @@
                 "Regardez cette vidéo explicative ludique au sujet de " + textRecherche + " . Un résumé accessible à tous pour faire le tour de la question."
             ];
 
-            // GÉNÉRATION DU RESTE DES RÉSULTATS
             for (let i = indexDepartLoop; i <= totalResultats; i++) {
                 const platef = plateformes[i % plateformes.length];
                 const ext = extensions[i % extensions.length];
@@ -596,5 +646,3 @@
 
 </body>
 </html>
-<meta name="description" content="Découvrez Kill-search, le moteur de recherche alternatif rapide avec interface personnalisée et accès direct à vos sites préférés.">
-<meta name="keywords" content="Kill-search, moteur de recherche, web, navigation, custom search">
