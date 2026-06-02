@@ -296,98 +296,68 @@
 
 
     <script>
-        // ÉCOUTEUR : S'exécute automatiquement au chargement ou à l'actualisation de la page
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const motRecherche = urlParams.get('q'); // Cherche s'il y a un "?q=..." dans l'URL
-            
-            if (motRecherche) {
-                // Si le mot existe dans l'URL, on affiche directement les résultats
-                afficherResultats(decodeURIComponent(motRecherche));
-            }
-        });
-
-        // Fonction appelée lors de la soumission du formulaire
         function executeSearch(event, inputId) {
-            if (event) event.preventDefault(); 
+            event.preventDefault(); 
             
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
 
-            // SOLUTION DE PERSISTANCE : Modifie la barre d'adresse sans recharger la page immédiatement
-            const nouvelUrl = window.location.pathname + '?q=' + encodeURIComponent(textRecherche);
-            window.history.pushState({}, '', nouvelUrl);
-
-            // Affiche les résultats
-            afficherResultats(textRecherche);
-        }
-
-        // Fonction qui génère visuellement les résultats dans la page
-        function afficherResultats(textRecherche) {
             document.getElementById('home-input').value = textRecherche;
             document.getElementById('results-input').value = textRecherche;
 
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            const randomTime = (Math.random() * (0.6 - 0.2) + 0.2).toFixed(2);
-            document.getElementById('search-stats').innerText = `Environ 6 résultats (${randomTime} secondes)`;
+            // Banques de données pour fabriquer des variantes réalistes
+            const extensions = ["fr", "org", "com", "net", "info"];
+            const plateformes = [
+                "wikipedia", "actus-web", "dictionnaire-langue", "videostube", 
+                "resocial", "forum-entraide", "blog-bricolage", "portail-savoir", 
+                "monde-demain", "reponses-rapides", "encyclopedie-libre", "univers-tech"
+            ];
+            const structuresTitres = [
+                `Guide complet sur ${textRecherche} : tout ce qu'il faut savoir`,
+                `Pourquoi ${textRecherche} change notre quotidien aujourd'hui`,
+                `Définition, origines et étymologie de ${textRecherche}`,
+                `Top 10 des meilleures astuces concernant ${textRecherche}`,
+                `Discussion communautaire et avis autour de : ${textRecherche}`,
+                `Tutoriel pas à pas : comment maîtriser ${textRecherche} facilement`,
+                `Histoire secrète et révélations sur ${textRecherche}`,
+                `Avis d'expert : quel est l'avenir de ${textRecherche} ?`,
+                `Les 5 erreurs fréquentes à absolument éviter avec ${textRecherche}`,
+                `Tout comprendre sur ${textRecherche} en moins de 2 minutes`
+            ];
+            const structuresSnippets = [
+                `Découvrez l'analyse approfondie concernant <b>${textRecherche}</b> sur notre portail dédié. Historique, évolutions majeures et ressources associées.`,
+                `Les dernières actus à la une. Les experts décryptent l'impact de <b>${textRecherche}</b> sur les nouvelles générations et partagent leurs rapports.`,
+                `Quelle est la signification réelle de <b>${textRecherche}</b> ? Retrouvez le sens complet, l'orthographe exacte et des exemples concrets d'usage.`,
+                `Regardez cette vidéo explicative ludique au sujet de <b>${textRecherche}</b>. Un résumé accessible à tous pour faire le tour de la question en images.`,
+                `Découvrez ce que la communauté partage à propos de <b>${textRecherche}</b>. Les posts les plus populaires, les débats chauds et réactions en direct.`,
+                `Discussion ouverte sur le forum d'entraide : "Bonjour, j'aimerais avoir vos retours d'expérience et conseils pratiques concernant <b>${textRecherche}</b>..."`,
+                `Explorez les coulisses de l'affaire <b>${textRecherche}</b> grâce à notre enquête exclusive menée sur le terrain par nos journalistes.`,
+                `Une étude statistique démontre de quelle manière <b>${textRecherche}</b> bouscule les codes et s'impose comme la tendance incontournable du moment.`,
+                `Ne restez pas bloqué ! Voici la liste ultime des astuces méconnues pour optimiser au maximum votre expérience avec <b>${textRecherche}</b>.`,
+                `Dossier spécial spécialisé : graphiques détaillés, données chiffrées et témoignages clés pour tout comprendre sur le phénomène <b>${textRecherche}</b>.`
+            ];
 
-            const container = document.getElementById('results-list');
-            container.innerHTML = `
-                <div class="result-item">
-                    <span class="result-url">https://fr.wikipedia.org › wiki › ${textRecherche}</span>
-                    <a href="#" class="result-title">${textRecherche} — Wikipédia</a>
-                    <span class="result-snippet">Découvrez l'article complet concernant <b>${textRecherche}</b> sur l'encyclopédie collaborative. Historique, origines, développements récents et références culturelles connexes.</span>
-                </div>
+            // Boucle magique pour générer 105 résultats distincts
+            let totalResultats = 105;
+            let htmlContenu = "";
 
-                <div class="result-item">
-                    <span class="result-url">https://www.actus-du-jour.fr › info › ${textRecherche}</span>
-                    <a href="#" class="result-title">Actualités en direct : Tout savoir sur ${textRecherche}</a>
-                    <span class="result-snippet">Les dernières informations à la une. Les experts décryptent l'impact de <b>${textRecherche}</b> dans la société actuelle et partagent des rapports exclusifs mis à jour aujourd'hui.</span>
-                </div>
+            for (let i = 1; i <= totalResultats; i++) {
+                // Choix d'éléments semi-aléatoires mais constants basés sur l'index de la boucle (i)
+                const platef = plateformes[i % plateformes.length];
+                const ext = extensions[i % extensions.length];
+                const titre = structuresTitres[(i + 3) % structuresTitres.length];
+                const snippet = structuresSnippets[(i + 7) % structuresSnippets.length];
+                
+                htmlContenu += `
+                    <div class="result-item">
+                        <span class="result-url">https://www.${platef}.${ext} › page › ${textRecherche.toLowerCase()}-id${i}</span>
+                        <a href="#" class="result-title">${i}. ${titre}</a>
+                        <span class="result-snippet">${snippet}</span>
+                    </div>
+                `;
+            }
 
-                <div class="result-item">
-                    <span class="result-url">https://www.dictionnaire-langue.fr › ${textRecherche}</span>
-                    <a href="#" class="result-title">Définition, Synonymes et Expressions de ${textRecherche}</a>
-                    <span class="result-snippet">Quelle est la signification de <b>${textRecherche}</b> ? Retrouvez le sens exact, l'orthographe correcte, l'étymologie et des exemples concrets d'utilisation dans la littérature.</span>
-                </div>
-
-                <div class="result-item">
-                    <span class="result-url">https://www.videostube.com › watch?v=${textRecherche}</span>
-                    <a href="#" class="result-title">TOUT COMPRENDRE SUR "${textRecherche}" EN 5 MINUTES ! (Vidéo)</a>
-                    <span class="result-snippet">Regardez cette vidéo explicative complète sur <b>${textRecherche}</b>. Un résumé visuel et ludique adapté aux débutants pour faire le tour de la question rapidement.</span>
-                </div>
-
-                <div class="result-item">
-                    <span class="result-url">https://www.resocial.com › tags › ${textRecherche}</span>
-                    <a href="#" class="result-title">#${textRecherche} - Tendances et discussions du moment</a>
-                    <span class="result-snippet">Découvrez ce que la communauté dit à propos de <b>${textRecherche}</b>. Les publications les plus aimées, les commentaires chauds et les partages viraux en temps réel.</span>
-                </div>
-
-                <div class="result-item">
-                    <span class="result-url">https://www.forum-entraide.com › sujets › ${textRecherche}</span>
-                    <a href="#" class="result-title">[Résolu] Vos avis et astuces sur la gestion de ${textRecherche} ?</a>
-                    <span class="result-snippet">Discussion ouverte sur le forum : "Bonjour à tous, j'aimerais avoir vos retours d'expérience concernant <b>${textRecherche}</b>, des conseils pratiques à partager ?" - 42 réponses.</span>
-                </div>
-            `;
-            
-            window.scrollTo(0, 0);
-        }
-
-        function triggerHomeSearch() {
-            executeSearch(new Event('submit'), 'home-input');
-        }
-
-        // Retourner à l'accueil (nettoie aussi la barre d'adresse)
-        function goHome() {
-            window.history.pushState({}, '', window.location.pathname); // Enlève le ?q=... de l'URL
-            document.getElementById('results-view').style.display = 'none';
-            document.getElementById('home-view').style.display = 'flex';
-            document.getElementById('home-input').value = "";
-            document.getElementById('home-input').focus();
-        }
-    </script>
-
-</body>
-</html>
+            // Affichage des statistiques de recherche
