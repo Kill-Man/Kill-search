@@ -29,9 +29,7 @@
             text-decoration: underline;
         }
 
-        /* ==========================================================================
-           VUE ACCUEIL (HOME)
-           ========================================================================== */
+        /* VUE ACCUEIL */
         #home-view {
             display: flex;
             flex-direction: column;
@@ -46,7 +44,7 @@
             font-size: 13px;
         }
 
-        #home-view header a {
+        header a {
             margin-left: 15px;
             color: #e8eaed;
         }
@@ -120,7 +118,6 @@
             height: 36px;
             text-align: center;
             cursor: pointer;
-            transition: border 0.1s;
         }
 
         .btn:hover {
@@ -156,9 +153,7 @@
             color: #9aa0a6;
         }
 
-        /* ==========================================================================
-           VUE RÉSULTATS (RESULTS)
-           ========================================================================== */
+        /* VUE RÉSULTATS */
         #results-view {
             display: none; 
             flex-direction: column;
@@ -250,6 +245,7 @@
                     </svg>
                 </div>
                 <input type="text" id="home-input" class="search-input" autofocus autocomplete="off">
+                <button type="submit" style="display: none;"></button>
             </form>
 
             <div class="buttons-container">
@@ -273,31 +269,24 @@
         </footer>
     </div>
 
-
     <div id="results-view">
         <div class="results-header">
             <div class="logo-small" onclick="goHome()">Recherche</div>
             
             <form class="search-box" onsubmit="executeSearch(event, 'results-input')">
                 <input type="text" id="results-input" class="search-input" autocomplete="off">
-                <div class="search-icon" style="margin-right: 0; cursor: pointer;" onclick="document.forms[1].requestSubmit()">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="#8ab4f8" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                    </svg>
-                </div>
+                <button type="submit" style="display: none;"></button>
             </form>
         </div>
 
         <div class="results-stats" id="search-stats"></div>
 
-        <div class="results-container" id="results-list">
-            </div>
+        <div class="results-container" id="results-list"></div>
     </div>
-
 
     <script>
         function executeSearch(event, inputId) {
-            event.preventDefault(); 
+            if (event) event.preventDefault(); 
             
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
@@ -308,56 +297,59 @@
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            // Banques de données pour fabriquer des variantes réalistes
             const extensions = ["fr", "org", "com", "net", "info"];
-            const plateformes = [
-                "wikipedia", "actus-web", "dictionnaire-langue", "videostube", 
-                "resocial", "forum-entraide", "blog-bricolage", "portail-savoir", 
-                "monde-demain", "reponses-rapides", "encyclopedie-libre", "univers-tech"
-            ];
+            const plateformes = ["wikipedia", "actus-web", "dictionnaire-langue", "videostube", "resocial", "forum-entraide", "blog-tech", "portail-savoir"];
+            
             const structuresTitres = [
-                `Guide complet sur ${textRecherche} : tout ce qu'il faut savoir`,
-                `Pourquoi ${textRecherche} change notre quotidien aujourd'hui`,
-                `Définition, origines et étymologie de ${textRecherche}`,
-                `Top 10 des meilleures astuces concernant ${textRecherche}`,
-                `Discussion communautaire et avis autour de : ${textRecherche}`,
-                `Tutoriel pas à pas : comment maîtriser ${textRecherche} facilement`,
-                `Histoire secrète et révélations sur ${textRecherche}`,
-                `Avis d'expert : quel est l'avenir de ${textRecherche} ?`,
-                `Les 5 erreurs fréquentes à absolument éviter avec ${textRecherche}`,
-                `Tout comprendre sur ${textRecherche} en moins de 2 minutes`
-            ];
-            const structuresSnippets = [
-                `Découvrez l'analyse approfondie concernant <b>${textRecherche}</b> sur notre portail dédié. Historique, évolutions majeures et ressources associées.`,
-                `Les dernières actus à la une. Les experts décryptent l'impact de <b>${textRecherche}</b> sur les nouvelles générations et partagent leurs rapports.`,
-                `Quelle est la signification réelle de <b>${textRecherche}</b> ? Retrouvez le sens complet, l'orthographe exacte et des exemples concrets d'usage.`,
-                `Regardez cette vidéo explicative ludique au sujet de <b>${textRecherche}</b>. Un résumé accessible à tous pour faire le tour de la question en images.`,
-                `Découvrez ce que la communauté partage à propos de <b>${textRecherche}</b>. Les posts les plus populaires, les débats chauds et réactions en direct.`,
-                `Discussion ouverte sur le forum d'entraide : "Bonjour, j'aimerais avoir vos retours d'expérience et conseils pratiques concernant <b>${textRecherche}</b>..."`,
-                `Explorez les coulisses de l'affaire <b>${textRecherche}</b> grâce à notre enquête exclusive menée sur le terrain par nos journalistes.`,
-                `Une étude statistique démontre de quelle manière <b>${textRecherche}</b> bouscule les codes et s'impose comme la tendance incontournable du moment.`,
-                `Ne restez pas bloqué ! Voici la liste ultime des astuces méconnues pour optimiser au maximum votre expérience avec <b>${textRecherche}</b>.`,
-                `Dossier spécial spécialisé : graphiques détaillés, données chiffrées et témoignages clés pour tout comprendre sur le phénomène <b>${textRecherche}</b>.`
+                "Guide complet sur " + textRecherche + " : tout savoir",
+                "Pourquoi " + textRecherche + " change notre quotidien",
+                "Définition, origines et étymologie de " + textRecherche,
+                "Top 10 des meilleures astuces concernant " + textRecherche,
+                "Discussion communautaire et avis autour de : " + textRecherche,
+                "Tutoriel pas à pas : maîtriser " + textRecherche + " facilement"
             ];
 
-            // Boucle magique pour générer 105 résultats distincts
-            let totalResultats = 105;
+            const structuresSnippets = [
+                "Découvrez l'analyse approfondie concernant " + textRecherche + " sur notre portail dédié. Historique, évolutions majeures et ressources associées.",
+                "Les dernières actus à la une. Les experts décryptent l'impact de " + textRecherche + " sur les nouvelles générations et partagent leurs rapports.",
+                "Quelle est la signification réelle de " + textRecherche + " ? Retrouvez le sens complet, l'orthographe exacte et des exemples concrets d'usage.",
+                "Regardez cette vidéo explicative ludique au sujet de " + textRecherche + " . Un résumé accessible à tous pour faire le tour de la question."
+            ];
+
+            let totalResultats = 100;
             let htmlContenu = "";
 
             for (let i = 1; i <= totalResultats; i++) {
-                // Choix d'éléments semi-aléatoires mais constants basés sur l'index de la boucle (i)
                 const platef = plateformes[i % plateformes.length];
                 const ext = extensions[i % extensions.length];
-                const titre = structuresTitres[(i + 3) % structuresTitres.length];
-                const snippet = structuresSnippets[(i + 7) % structuresSnippets.length];
+                const titre = structuresTitres[i % structuresTitres.length];
+                const snippet = structuresSnippets[i % structuresSnippets.length];
                 
-                htmlContenu += `
-                    <div class="result-item">
-                        <span class="result-url">https://www.${platef}.${ext} › page › ${textRecherche.toLowerCase()}-id${i}</span>
-                        <a href="#" class="result-title">${i}. ${titre}</a>
-                        <span class="result-snippet">${snippet}</span>
-                    </div>
-                `;
+                htmlContenu += '<div class="result-item">' +
+                    '<span class="result-url">https://www.' + platef + '.' + ext + ' › page › ' + textRecherche.toLowerCase() + '-' + i + '</span>' +
+                    '<a href="#" class="result-title">' + i + '. ' + titre + '</a>' +
+                    '<span class="result-snippet">' + snippet + '</span>' +
+                '</div>';
             }
 
-            // Affichage des statistiques de recherche
+            const tempsAleatoire = (Math.random() * (0.6 - 0.2) + 0.2).toFixed(2);
+            document.getElementById('search-stats').innerText = "Environ " + totalResultats + " résultats (" + tempsAleatoire + " secondes)";
+            document.getElementById('results-list').innerHTML = htmlContenu;
+            
+            window.scrollTo(0, 0);
+        }
+
+        function triggerHomeSearch() {
+            executeSearch(null, 'home-input');
+        }
+
+        function goHome() {
+            document.getElementById('results-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'flex';
+            document.getElementById('home-input').value = "";
+            document.getElementById('home-input').focus();
+        }
+    </script>
+
+</body>
+</html>
