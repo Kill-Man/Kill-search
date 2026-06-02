@@ -217,4 +217,177 @@
         .result-snippet {
             font-size: 14px;
             color: #bdc1c6;
-            line-height:
+            line-height: 1.4;
+        }
+
+        @media (max-width: 800px) {
+            .results-stats, .results-container {
+                padding: 15px 20px;
+            }
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="home-view">
+        <header>
+            <a href="#">Mon Compte</a>
+            <a href="#">Images</a>
+        </header>
+
+        <div class="main-container">
+            <div class="logo" onclick="goHome()">Recherche</div>
+            
+            <form class="search-box" onsubmit="executeSearch(event, 'home-input')">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="home-input" class="search-input" autofocus autocomplete="off">
+            </form>
+
+            <div class="buttons-container">
+                <button class="btn" onclick="triggerHomeSearch()">Recherche</button>
+                <button class="btn" type="button">J'ai de la chance</button>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-top">France</div>
+            <div class="footer-bottom">
+                <div>
+                    <a href="#">À propos</a>
+                    <a href="#">Publicité</a>
+                </div>
+                <div>
+                    <a href="#">Confidentialité</a>
+                    <a href="#">Conditions</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+    <div id="results-view">
+        <div class="results-header">
+            <div class="logo-small" onclick="goHome()">Recherche</div>
+            
+            <form class="search-box" onsubmit="executeSearch(event, 'results-input')">
+                <input type="text" id="results-input" class="search-input" autocomplete="off">
+                <div class="search-icon" style="margin-right: 0; cursor: pointer;" onclick="document.forms[1].requestSubmit()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#8ab4f8" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                    </svg>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-stats" id="search-stats"></div>
+
+        <div class="results-container" id="results-list">
+            </div>
+    </div>
+
+
+    <script>
+        // ÉCOUTEUR : S'exécute automatiquement au chargement ou à l'actualisation de la page
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const motRecherche = urlParams.get('q'); // Cherche s'il y a un "?q=..." dans l'URL
+            
+            if (motRecherche) {
+                // Si le mot existe dans l'URL, on affiche directement les résultats
+                afficherResultats(decodeURIComponent(motRecherche));
+            }
+        });
+
+        // Fonction appelée lors de la soumission du formulaire
+        function executeSearch(event, inputId) {
+            if (event) event.preventDefault(); 
+            
+            const textRecherche = document.getElementById(inputId).value.trim();
+            if (textRecherche === "") return;
+
+            // SOLUTION DE PERSISTANCE : Modifie la barre d'adresse sans recharger la page immédiatement
+            const nouvelUrl = window.location.pathname + '?q=' + encodeURIComponent(textRecherche);
+            window.history.pushState({}, '', nouvelUrl);
+
+            // Affiche les résultats
+            afficherResultats(textRecherche);
+        }
+
+        // Fonction qui génère visuellement les résultats dans la page
+        function afficherResultats(textRecherche) {
+            document.getElementById('home-input').value = textRecherche;
+            document.getElementById('results-input').value = textRecherche;
+
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('results-view').style.display = 'flex';
+
+            const randomTime = (Math.random() * (0.6 - 0.2) + 0.2).toFixed(2);
+            document.getElementById('search-stats').innerText = `Environ 6 résultats (${randomTime} secondes)`;
+
+            const container = document.getElementById('results-list');
+            container.innerHTML = `
+                <div class="result-item">
+                    <span class="result-url">https://fr.wikipedia.org › wiki › ${textRecherche}</span>
+                    <a href="#" class="result-title">${textRecherche} — Wikipédia</a>
+                    <span class="result-snippet">Découvrez l'article complet concernant <b>${textRecherche}</b> sur l'encyclopédie collaborative. Historique, origines, développements récents et références culturelles connexes.</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-url">https://www.actus-du-jour.fr › info › ${textRecherche}</span>
+                    <a href="#" class="result-title">Actualités en direct : Tout savoir sur ${textRecherche}</a>
+                    <span class="result-snippet">Les dernières informations à la une. Les experts décryptent l'impact de <b>${textRecherche}</b> dans la société actuelle et partagent des rapports exclusifs mis à jour aujourd'hui.</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-url">https://www.dictionnaire-langue.fr › ${textRecherche}</span>
+                    <a href="#" class="result-title">Définition, Synonymes et Expressions de ${textRecherche}</a>
+                    <span class="result-snippet">Quelle est la signification de <b>${textRecherche}</b> ? Retrouvez le sens exact, l'orthographe correcte, l'étymologie et des exemples concrets d'utilisation dans la littérature.</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-url">https://www.videostube.com › watch?v=${textRecherche}</span>
+                    <a href="#" class="result-title">TOUT COMPRENDRE SUR "${textRecherche}" EN 5 MINUTES ! (Vidéo)</a>
+                    <span class="result-snippet">Regardez cette vidéo explicative complète sur <b>${textRecherche}</b>. Un résumé visuel et ludique adapté aux débutants pour faire le tour de la question rapidement.</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-url">https://www.resocial.com › tags › ${textRecherche}</span>
+                    <a href="#" class="result-title">#${textRecherche} - Tendances et discussions du moment</a>
+                    <span class="result-snippet">Découvrez ce que la communauté dit à propos de <b>${textRecherche}</b>. Les publications les plus aimées, les commentaires chauds et les partages viraux en temps réel.</span>
+                </div>
+
+                <div class="result-item">
+                    <span class="result-url">https://www.forum-entraide.com › sujets › ${textRecherche}</span>
+                    <a href="#" class="result-title">[Résolu] Vos avis et astuces sur la gestion de ${textRecherche} ?</a>
+                    <span class="result-snippet">Discussion ouverte sur le forum : "Bonjour à tous, j'aimerais avoir vos retours d'expérience concernant <b>${textRecherche}</b>, des conseils pratiques à partager ?" - 42 réponses.</span>
+                </div>
+            `;
+            
+            window.scrollTo(0, 0);
+        }
+
+        function triggerHomeSearch() {
+            executeSearch(new Event('submit'), 'home-input');
+        }
+
+        // Retourner à l'accueil (nettoie aussi la barre d'adresse)
+        function goHome() {
+            window.history.pushState({}, '', window.location.pathname); // Enlève le ?q=... de l'URL
+            document.getElementById('results-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'flex';
+            document.getElementById('home-input').value = "";
+            document.getElementById('home-input').focus();
+        }
+    </script>
+
+</body>
+</html>
