@@ -30,7 +30,7 @@
         }
 
         /* ==========================================================================
-           BARRE D'ADRESSE SIMULÉE (STYLE NAVIGATEUR)
+           BARRE D'ADRESSE ACTIVE (STYLE NAVIGATEUR)
            ========================================================================== */
         .browser-bar {
             background-color: #1c1c1e;
@@ -59,18 +59,22 @@
 
         .browser-address {
             background-color: #303134;
-            color: #bdc1c6;
+            color: #e8eaed;
             font-size: 13px;
-            padding: 5px 20px;
+            padding: 6px 20px;
             border-radius: 20px;
             flex-grow: 1;
             max-width: 650px;
             font-family: monospace;
             text-align: left;
             border: 1px solid #5f6368;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .browser-address:focus {
+            border-color: #8ab4f8;
+            background-color: #3c4043;
         }
 
         /* ==========================================================================
@@ -79,7 +83,7 @@
         #home-view {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 41px);
+            height: calc(100vh - 43px);
             justify-content: space-between;
         }
 
@@ -230,7 +234,6 @@
             color: #9aa0a6;
         }
 
-        /* Grille des images associées */
         .images-box {
             padding: 0 160px;
             max-width: 850px;
@@ -267,7 +270,6 @@
             transform: scale(1.04);
         }
 
-        /* Conteneur des résultats textuels */
         .results-container {
             padding: 0 160px;
             max-width: 730px;
@@ -336,15 +338,17 @@
 </head>
 <body>
 
+    <!-- ================= BARRE D'ADRESSE DU NAVIGATEUR ACTIVE ================= -->
     <div class="browser-bar">
         <div class="browser-buttons">
             <span class="dot red"></span>
             <span class="dot yellow"></span>
             <span class="dot green"></span>
         </div>
-        <div class="browser-address" id="browser-url">https://kill-man.github.io/Kill-search/</div>
+        <input type="text" class="browser-address" id="browser-url" value="https://kill-man.github.io/Kill-search/" onkeydown="checkBrowserNavigation(event)">
     </div>
 
+    <!-- ================= VUE ACCUEIL ================= -->
     <div id="home-view">
         <header>
             <a href="#">Mon Compte</a>
@@ -385,6 +389,7 @@
         </footer>
     </div>
 
+    <!-- ================= VUE RÉSULTATS ================= -->
     <div id="results-view">
         <div class="results-header">
             <div class="logo-small" onclick="goHome()">Kill-search</div>
@@ -397,20 +402,48 @@
 
         <div class="results-stats" id="search-stats"></div>
 
+        <!-- BLOC IMAGES ASSOCIEES -->
         <div class="images-box" id="images-panel">
             <h3 class="images-title">Images associées à la recherche</h3>
             <div class="images-grid" id="images-display-grid"></div>
         </div>
 
+        <!-- RÉSULTATS DE RECHERCHE -->
         <div class="results-container" id="results-list"></div>
     </div>
 
+    <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
+        // Fonction permettant à la barre d'adresse tout en haut d'ouvrir de vrais sites
+        function checkBrowserNavigation(event) {
+            if (event.key === "Enter") {
+                let saisieUrl = event.target.value.trim();
+                if (saisieUrl === "") return;
+                
+                // Si la saisie ne commence pas par http:// ou https://, on le rajoute automatiquement
+                if (!/^https?:\/\//i.test(saisieUrl)) {
+                    saisieUrl = "https://" + saisieUrl;
+                }
+                // Navigation réelle vers le site demandé
+                window.location.href = saisieUrl;
+            }
+        }
+
         function executeSearch(event, inputId) {
             if (event) event.preventDefault(); 
             
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
+
+            // SÉCURITÉ : Si l'utilisateur tape une URL directe dans la barre de recherche (ex: facebook.com, google.fr)
+            if ((textRecherche.includes('.') && !textRecherche.includes(' ')) || textRecherche.startsWith('http')) {
+                let lienDirect = textRecherche;
+                if (!/^https?:\/\//i.test(lienDirect)) {
+                    lienDirect = "https://" + lienDirect;
+                }
+                window.location.href = lienDirect;
+                return; // On stoppe la recherche classique pour naviguer directement
+            }
 
             // Synchroniser les deux barres de recherche
             document.getElementById('home-input').value = textRecherche;
@@ -420,8 +453,8 @@
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            // MISE À JOUR DE LA BARRE D'ADRESSE SIMULÉE
-            document.getElementById('browser-url').innerText = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
+            // MISE À JOUR DE LA BARRE D'ADRESSE SIMULÉE AVEC LES PARAMÈTRES
+            document.getElementById('browser-url').value = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
 
             // GÉNÉRATION DU PANNEAU D'IMAGES DYNAMIQUES
             const panelImages = document.getElementById('images-panel');
@@ -429,7 +462,6 @@
             grilleImages.innerHTML = ""; 
             
             let htmlImages = "";
-            // On génère 6 images thématiques basées sur le mot clé
             for (let j = 1; j <= 6; j++) {
                 htmlImages += '<img src="https://loremflickr.com/200/200/' + encodeURIComponent(textRecherche) + '?lock=' + j + '" alt="Résultat image">';
             }
@@ -456,7 +488,7 @@
                 "Regardez cette vidéo explicative ludique au sujet de " + textRecherche + " . Un résumé accessible à tous pour faire le tour de la question."
             ];
 
-            // GÉNÉRATION DES 100 RÉSULTATS TEXTUELS
+            // GÉNÉRATION DES 100 RÉSULTATS TEXTUELS REELS
             let totalResultats = 100;
             let htmlContenu = "";
 
@@ -467,23 +499,27 @@
                 const snippet = structuresSnippets[i % structuresSnippets.length];
                 const lienFictif = 'https://www.' + platef + '.' + ext + ' › page › ' + textRecherche.toLowerCase() + '-' + i;
                 
-                // On met une miniature image tous les 6 résultats pour faire réaliste
+                // Rendre les liens actifs (Si c'est Wikipédia, on l'envoie sur le vrai Wikipédia, sinon sur une vraie recherche Google)
+                let lienReel = "https://www.google.com/search?q=" + encodeURIComponent(textRecherche);
+                if (platef === "wikipedia") {
+                    lienReel = "https://fr.wikipedia.org/wiki/" + encodeURIComponent(textRecherche);
+                }
+
                 if (i % 6 === 0) {
                     htmlContenu += '<div class="result-item">' +
                         '<span class="result-url">' + lienFictif + '</span>' +
                         '<div class="result-with-thumb">' +
                             '<div class="result-text-side">' +
-                                '<a href="#" class="result-title">' + i + '. ' + titre + '</a><br>' +
+                                '<a href="' + lienReel + '" target="_blank" class="result-title">' + i + '. ' + titre + '</a><br>' +
                                 '<span class="result-snippet">' + snippet + '</span>' +
                             '</div>' +
                             '<img class="result-inline-thumb" src="https://loremflickr.com/100/100/' + encodeURIComponent(textRecherche) + '?lock=' + (i + 20) + '" alt="Miniature">' +
                         '</div>' +
                     '</div>';
                 } else {
-                    // Résultat textuel classique
                     htmlContenu += '<div class="result-item">' +
                         '<span class="result-url">' + lienFictif + '</span>' +
-                        '<a href="#" class="result-title">' + i + '. ' + titre + '</a>' +
+                        '<a href="' + lienReel + '" target="_blank" class="result-title">' + i + '. ' + titre + '</a>' +
                         '<span class="result-snippet">' + snippet + '</span>' +
                     '</div>';
                 }
@@ -505,7 +541,7 @@
             document.getElementById('home-view').style.display = 'flex';
             document.getElementById('images-panel').style.display = 'none';
             document.getElementById('home-input').value = "";
-            document.getElementById('browser-url').innerText = "https://kill-man.github.io/Kill-search/";
+            document.getElementById('browser-url').value = "https://kill-man.github.io/Kill-search/";
             document.getElementById('home-input').focus();
         }
     </script>
