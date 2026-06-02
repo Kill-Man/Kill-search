@@ -414,17 +414,14 @@
 
     <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
-        // Fonction permettant à la barre d'adresse tout en haut d'ouvrir de vrais sites
         function checkBrowserNavigation(event) {
             if (event.key === "Enter") {
                 let saisieUrl = event.target.value.trim();
                 if (saisieUrl === "") return;
                 
-                // Si la saisie ne commence pas par http:// ou https://, on le rajoute automatiquement
                 if (!/^https?:\/\//i.test(saisieUrl)) {
                     saisieUrl = "https://" + saisieUrl;
                 }
-                // Navigation réelle vers le site demandé
                 window.location.href = saisieUrl;
             }
         }
@@ -435,40 +432,95 @@
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
 
-            // SÉCURITÉ : Si l'utilisateur tape une URL directe dans la barre de recherche (ex: facebook.com, google.fr)
+            // Redirection directe si on tape une vraie URL complète
             if ((textRecherche.includes('.') && !textRecherche.includes(' ')) || textRecherche.startsWith('http')) {
                 let lienDirect = textRecherche;
                 if (!/^https?:\/\//i.test(lienDirect)) {
                     lienDirect = "https://" + lienDirect;
                 }
                 window.location.href = lienDirect;
-                return; // On stoppe la recherche classique pour naviguer directement
+                return;
             }
 
-            // Synchroniser les deux barres de recherche
+            // Synchroniser les entrées
             document.getElementById('home-input').value = textRecherche;
             document.getElementById('results-input').value = textRecherche;
 
-            // Basculer d'écran
+            // Afficher l'écran des résultats
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            // MISE À JOUR DE LA BARRE D'ADRESSE SIMULÉE AVEC LES PARAMÈTRES
+            // Mettre à jour la barre d'adresse simulée
             document.getElementById('browser-url').value = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
 
-            // GÉNÉRATION DU PANNEAU D'IMAGES DYNAMIQUES
+            // Générer le bloc d'images dynamiques
             const panelImages = document.getElementById('images-panel');
             const grilleImages = document.getElementById('images-display-grid');
             grilleImages.innerHTML = ""; 
             
             let htmlImages = "";
             for (let j = 1; j <= 6; j++) {
-                htmlImages += '<img src="https://loremflickr.com/200/200/' + encodeURIComponent(textRecherche) + '?lock=' + j + '" alt="Résultat image">';
+                htmlImages += '<img src="https://loremflickr.com/200/200/' + encodeURIComponent(textRecherche) + '?lock=' + j + '" alt="Image">';
             }
             grilleImages.innerHTML = htmlImages;
             panelImages.style.display = "block";
 
-            // BANQUE DE DONNÉES TEXTUELLES
+            // =================================================================
+            // BASE DE DONNÉES DES VRAIS SITES OFFICIELS
+            // =================================================================
+            const sitesOfficiels = {
+                "youtube": {
+                    titre: "YouTube - Regardez des vidéos et de la musique en ligne",
+                    url: "https://www.youtube.com",
+                    displayUrl: "https://www.youtube.com",
+                    snippet: "Profitez des vidéos et de la musique que vous aimez, mettez en ligne des contenus originaux, et partagez-les avec vos amis, vos proches et le monde entier sur YouTube."
+                },
+                "google": {
+                    titre: "Google - Moteur de recherche",
+                    url: "https://www.google.com",
+                    displayUrl: "https://www.google.com",
+                    snippet: "Le moteur de recherche le plus célèbre du monde. Trouvez exactement ce que vous cherchez grâce aux algorithmes de recherche Google."
+                },
+                "wikipedia": {
+                    titre: "Wikipédia, l'encyclopédie libre et collaborative",
+                    url: "https://fr.wikipedia.org",
+                    displayUrl: "https://fr.wikipedia.org",
+                    snippet: "Découvrez des millions d'articles complets rédigés bénévolement par une communauté d'experts et de passionnés à travers le monde."
+                },
+                "github": {
+                    titre: "GitHub: Let’s build from here · GitHub",
+                    url: "https://github.com",
+                    displayUrl: "https://github.com",
+                    snippet: "La plateforme de développement de code référence mondiale pour héberger, gérer, partager et déployer vos projets informatiques."
+                }
+            };
+
+            let htmlContenu = "";
+            let totalResultats = 100;
+            let indexDepartLoop = 1;
+
+            // Vérifier si la recherche correspond à un de nos mots clés officiels
+            const motCleMinuscule = textRecherche.toLowerCase();
+            let siteOfficielTrouve = null;
+
+            for (const cle in sitesOfficiels) {
+                if (motCleMinuscule.includes(cle)) {
+                    siteOfficielTrouve = sitesOfficiels[cle];
+                    break;
+                }
+            }
+
+            // Si on a trouvé le vrai site, on l'injecte obligatoirement en POSITION N°1
+            if (siteOfficielTrouve) {
+                htmlContenu += '<div class="result-item" style="background-color: #282a2d; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #8ab4f8;">' +
+                    '<span class="result-url" style="color: #34a853; font-weight: bold;">Site Officiel › ' + siteOfficielTrouve.displayUrl + '</span>' +
+                    '<a href="' + siteOfficielTrouve.url + '" target="_blank" class="result-title">1. ' + siteOfficielTrouve.titre + '</a>' +
+                    '<span class="result-snippet">' + siteOfficielTrouve.snippet + '</span>' +
+                '</div>';
+                indexDepartLoop = 2; // La boucle commencera au numéro 2 car le 1 est pris par le vrai site !
+            }
+
+            // BANQUE DE DONNÉES SIMULÉE POUR LE RESTE DES 100 RÉSULTATS
             const extensions = ["fr", "org", "com", "net", "info"];
             const plateformes = ["wikipedia", "actus-web", "dictionnaire-langue", "videostube", "resocial", "forum-entraide", "blog-tech", "portail-savoir"];
             
@@ -488,18 +540,14 @@
                 "Regardez cette vidéo explicative ludique au sujet de " + textRecherche + " . Un résumé accessible à tous pour faire le tour de la question."
             ];
 
-            // GÉNÉRATION DES 100 RÉSULTATS TEXTUELS REELS
-            let totalResultats = 100;
-            let htmlContenu = "";
-
-            for (let i = 1; i <= totalResultats; i++) {
+            // GÉNÉRATION DU RESTE DES RÉSULTATS
+            for (let i = indexDepartLoop; i <= totalResultats; i++) {
                 const platef = plateformes[i % plateformes.length];
                 const ext = extensions[i % extensions.length];
                 const titre = structuresTitres[i % structuresTitres.length];
                 const snippet = structuresSnippets[i % structuresSnippets.length];
                 const lienFictif = 'https://www.' + platef + '.' + ext + ' › page › ' + textRecherche.toLowerCase() + '-' + i;
                 
-                // Rendre les liens actifs (Si c'est Wikipédia, on l'envoie sur le vrai Wikipédia, sinon sur une vraie recherche Google)
                 let lienReel = "https://www.google.com/search?q=" + encodeURIComponent(textRecherche);
                 if (platef === "wikipedia") {
                     lienReel = "https://fr.wikipedia.org/wiki/" + encodeURIComponent(textRecherche);
