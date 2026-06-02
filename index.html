@@ -29,11 +29,57 @@
             text-decoration: underline;
         }
 
-        /* VUE ACCUEIL */
+        /* ==========================================================================
+           BARRE D'ADRESSE SIMULÉE (STYLE NAVIGATEUR)
+           ========================================================================== */
+        .browser-bar {
+            background-color: #1c1c1e;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #3c4043;
+            gap: 20px;
+            user-select: none;
+        }
+
+        .browser-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.red { background-color: #ff5f56; }
+        .dot.yellow { background-color: #ffbd2e; }
+        .dot.green { background-color: #27c93f; }
+
+        .browser-address {
+            background-color: #303134;
+            color: #bdc1c6;
+            font-size: 13px;
+            padding: 5px 20px;
+            border-radius: 20px;
+            flex-grow: 1;
+            max-width: 650px;
+            font-family: monospace;
+            text-align: left;
+            border: 1px solid #5f6368;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ==========================================================================
+           VUE ACCUEIL
+           ========================================================================== */
         #home-view {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: calc(100vh - 41px);
             justify-content: space-between;
         }
 
@@ -153,7 +199,9 @@
             color: #9aa0a6;
         }
 
-        /* VUE RÉSULTATS */
+        /* ==========================================================================
+           VUE RÉSULTATS & BLOCS IMAGES
+           ========================================================================== */
         #results-view {
             display: none; 
             flex-direction: column;
@@ -182,6 +230,44 @@
             color: #9aa0a6;
         }
 
+        /* Grille des images associées */
+        .images-box {
+            padding: 0 160px;
+            max-width: 850px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .images-title {
+            font-size: 16px;
+            color: #f1f3f4;
+            margin-bottom: 12px;
+            font-weight: normal;
+        }
+
+        .images-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .images-grid img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #3c4043;
+            background-color: #303134;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .images-grid img:hover {
+            transform: scale(1.04);
+        }
+
+        /* Conteneur des résultats textuels */
         .results-container {
             padding: 0 160px;
             max-width: 730px;
@@ -196,10 +282,21 @@
             flex-direction: column;
         }
 
+        .result-with-thumb {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .result-text-side {
+            flex-grow: 1;
+        }
+
         .result-url {
             font-size: 12px;
             color: #bdc1c6;
             margin-bottom: 4px;
+            display: block;
         }
 
         .result-title {
@@ -215,8 +312,18 @@
             line-height: 1.4;
         }
 
+        .result-inline-thumb {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #3c4043;
+            background-color: #303134;
+            margin-top: 4px;
+        }
+
         @media (max-width: 800px) {
-            .results-stats, .results-container {
+            .results-stats, .results-container, .images-box {
                 padding: 15px 20px;
             }
             .results-header {
@@ -228,6 +335,15 @@
     </style>
 </head>
 <body>
+
+    <div class="browser-bar">
+        <div class="browser-buttons">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+        </div>
+        <div class="browser-address" id="browser-url">https://kill-man.github.io/Kill-search/</div>
+    </div>
 
     <div id="home-view">
         <header>
@@ -281,6 +397,11 @@
 
         <div class="results-stats" id="search-stats"></div>
 
+        <div class="images-box" id="images-panel">
+            <h3 class="images-title">Images associées à la recherche</h3>
+            <div class="images-grid" id="images-display-grid"></div>
+        </div>
+
         <div class="results-container" id="results-list"></div>
     </div>
 
@@ -291,12 +412,31 @@
             const textRecherche = document.getElementById(inputId).value.trim();
             if (textRecherche === "") return;
 
+            // Synchroniser les deux barres de recherche
             document.getElementById('home-input').value = textRecherche;
             document.getElementById('results-input').value = textRecherche;
 
+            // Basculer d'écran
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
+            // MISE À JOUR DE LA BARRE D'ADRESSE SIMULÉE
+            document.getElementById('browser-url').innerText = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
+
+            // GÉNÉRATION DU PANNEAU D'IMAGES DYNAMIQUES
+            const panelImages = document.getElementById('images-panel');
+            const grilleImages = document.getElementById('images-display-grid');
+            grilleImages.innerHTML = ""; 
+            
+            let htmlImages = "";
+            // On génère 6 images thématiques basées sur le mot clé
+            for (let j = 1; j <= 6; j++) {
+                htmlImages += '<img src="https://loremflickr.com/200/200/' + encodeURIComponent(textRecherche) + '?lock=' + j + '" alt="Résultat image">';
+            }
+            grilleImages.innerHTML = htmlImages;
+            panelImages.style.display = "block";
+
+            // BANQUE DE DONNÉES TEXTUELLES
             const extensions = ["fr", "org", "com", "net", "info"];
             const plateformes = ["wikipedia", "actus-web", "dictionnaire-langue", "videostube", "resocial", "forum-entraide", "blog-tech", "portail-savoir"];
             
@@ -316,6 +456,7 @@
                 "Regardez cette vidéo explicative ludique au sujet de " + textRecherche + " . Un résumé accessible à tous pour faire le tour de la question."
             ];
 
+            // GÉNÉRATION DES 100 RÉSULTATS TEXTUELS
             let totalResultats = 100;
             let htmlContenu = "";
 
@@ -324,12 +465,28 @@
                 const ext = extensions[i % extensions.length];
                 const titre = structuresTitres[i % structuresTitres.length];
                 const snippet = structuresSnippets[i % structuresSnippets.length];
+                const lienFictif = 'https://www.' + platef + '.' + ext + ' › page › ' + textRecherche.toLowerCase() + '-' + i;
                 
-                htmlContenu += '<div class="result-item">' +
-                    '<span class="result-url">https://www.' + platef + '.' + ext + ' › page › ' + textRecherche.toLowerCase() + '-' + i + '</span>' +
-                    '<a href="#" class="result-title">' + i + '. ' + titre + '</a>' +
-                    '<span class="result-snippet">' + snippet + '</span>' +
-                '</div>';
+                // On met une miniature image tous les 6 résultats pour faire réaliste
+                if (i % 6 === 0) {
+                    htmlContenu += '<div class="result-item">' +
+                        '<span class="result-url">' + lienFictif + '</span>' +
+                        '<div class="result-with-thumb">' +
+                            '<div class="result-text-side">' +
+                                '<a href="#" class="result-title">' + i + '. ' + titre + '</a><br>' +
+                                '<span class="result-snippet">' + snippet + '</span>' +
+                            '</div>' +
+                            '<img class="result-inline-thumb" src="https://loremflickr.com/100/100/' + encodeURIComponent(textRecherche) + '?lock=' + (i + 20) + '" alt="Miniature">' +
+                        '</div>' +
+                    '</div>';
+                } else {
+                    // Résultat textuel classique
+                    htmlContenu += '<div class="result-item">' +
+                        '<span class="result-url">' + lienFictif + '</span>' +
+                        '<a href="#" class="result-title">' + i + '. ' + titre + '</a>' +
+                        '<span class="result-snippet">' + snippet + '</span>' +
+                    '</div>';
+                }
             }
 
             const tempsAleatoire = (Math.random() * (0.6 - 0.2) + 0.2).toFixed(2);
@@ -346,7 +503,9 @@
         function goHome() {
             document.getElementById('results-view').style.display = 'none';
             document.getElementById('home-view').style.display = 'flex';
+            document.getElementById('images-panel').style.display = 'none';
             document.getElementById('home-input').value = "";
+            document.getElementById('browser-url').innerText = "https://kill-man.github.io/Kill-search/";
             document.getElementById('home-input').focus();
         }
     </script>
