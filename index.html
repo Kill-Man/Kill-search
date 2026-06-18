@@ -380,12 +380,10 @@
 </head>
 <body>
 
-    <!-- ================= BARRE D'ADRESSE DU NAVIGATEUR ACTIVE ================= -->
     <div class="browser-bar">
         <input type="text" class="browser-address" id="browser-url" value="https://kill-man.github.io/Kill-search/" onkeydown="checkBrowserNavigation(event)">
     </div>
 
-    <!-- ================= VUE ACCUEIL ================= -->
     <div id="home-view">
         <header>
             <a href="#">Mon Compte</a>
@@ -410,7 +408,6 @@
                 <button class="btn" type="button">J'ai de la chance</button>
             </div>
 
-            <!-- BLOC MISES À JOUR DYNAMIQUE -->
             <div class="updates-box">
                 <div class="updates-title">🚀 Mises à jour & Nouveautés</div>
                 <ul class="updates-list">
@@ -436,7 +433,6 @@
         </footer>
     </div>
 
-    <!-- ================= VUE RÉSULTATS ================= -->
     <div id="results-view">
         <div class="results-header">
             <div class="logo-small" onclick="goHome()">Kill-search</div>
@@ -449,17 +445,14 @@
 
         <div class="results-stats" id="search-stats"></div>
 
-        <!-- BLOC IMAGES ASSOCIEES -->
         <div class="images-box" id="images-panel">
             <h3 class="images-title">Images associées à la recherche</h3>
             <div class="images-grid" id="images-display-grid"></div>
         </div>
 
-        <!-- RÉSULTATS DE RECHERCHE -->
         <div class="results-container" id="results-list"></div>
     </div>
 
-    <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
         // LOGIQUE AMÉLIORÉE POUR LA BARRE DU HAUT
         function checkBrowserNavigation(event) {
@@ -467,14 +460,12 @@
                 let saisie = event.target.value.trim();
                 if (saisie === "") return;
                 
-                // Détection : si ça contient un point sans espace (ex: google.com) ou commence par http
                 if ((saisie.includes('.') && !saisie.includes(' ')) || saisie.startsWith('http')) {
                     if (!/^https?:\/\//i.test(saisie)) {
                         saisie = "https://" + saisie;
                     }
-                    window.location.href = saisie; // On y va directement
+                    window.location.href = saisie; 
                 } else {
-                    // Sinon, c'est un mot simple -> On lance une recherche interne automatique !
                     document.getElementById('home-input').value = saisie;
                     executeSearch(null, 'home-input');
                 }
@@ -594,13 +585,13 @@
                 
                 let lienReel = "https://www.google.com/search?q=" + encodeURIComponent(textRecherche);
                 if (platef === "wikipedia") {
-                    lienReel = "https://fr.wikipedia.org/wiki/" + encodeURIComponent(textRecherche);
+                    lineReel = "https://fr.wikipedia.org/wiki/" + encodeURIComponent(textRecherche);
                 }
 
                 if (i % 6 === 0) {
                     htmlContenu += '<div class="result-item">' +
                         '<span class="result-url">' + lienFictif + '</span>' +
-                        <div class="result-with-thumb">' +
+                        '<div class="result-with-thumb">' +
                             '<div class="result-text-side">' +
                                 '<a href="' + lienReel + '" target="_blank" class="result-title">' + i + '. ' + titre + '</a><br>' +
                                 '<span class="result-snippet">' + snippet + '</span>' +
