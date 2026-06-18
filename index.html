@@ -38,24 +38,8 @@
             display: flex;
             align-items: center;
             border-bottom: 1px solid #3c4043;
-            gap: 20px;
             user-select: none;
         }
-
-        .browser-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .dot.red { background-color: #ff5f56; }
-        .dot.yellow { background-color: #ffbd2e; }
-        .dot.green { background-color: #27c93f; }
 
         .browser-address {
             background-color: #303134;
@@ -396,15 +380,12 @@
 </head>
 <body>
 
+    <!-- ================= BARRE D'ADRESSE DU NAVIGATEUR ACTIVE ================= -->
     <div class="browser-bar">
-        <div class="browser-buttons">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-        </div>
         <input type="text" class="browser-address" id="browser-url" value="https://kill-man.github.io/Kill-search/" onkeydown="checkBrowserNavigation(event)">
     </div>
 
+    <!-- ================= VUE ACCUEIL ================= -->
     <div id="home-view">
         <header>
             <a href="#">Mon Compte</a>
@@ -429,6 +410,7 @@
                 <button class="btn" type="button">J'ai de la chance</button>
             </div>
 
+            <!-- BLOC MISES À JOUR DYNAMIQUE -->
             <div class="updates-box">
                 <div class="updates-title">🚀 Mises à jour & Nouveautés</div>
                 <ul class="updates-list">
@@ -454,6 +436,7 @@
         </footer>
     </div>
 
+    <!-- ================= VUE RÉSULTATS ================= -->
     <div id="results-view">
         <div class="results-header">
             <div class="logo-small" onclick="goHome()">Kill-search</div>
@@ -466,14 +449,17 @@
 
         <div class="results-stats" id="search-stats"></div>
 
+        <!-- BLOC IMAGES ASSOCIEES -->
         <div class="images-box" id="images-panel">
             <h3 class="images-title">Images associées à la recherche</h3>
             <div class="images-grid" id="images-display-grid"></div>
         </div>
 
+        <!-- RÉSULTATS DE RECHERCHE -->
         <div class="results-container" id="results-list"></div>
     </div>
 
+    <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
         function checkBrowserNavigation(event) {
             if (event.key === "Enter") {
