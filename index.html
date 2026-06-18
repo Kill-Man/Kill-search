@@ -414,9 +414,9 @@
             <div class="updates-box">
                 <div class="updates-title">🚀 Mises à jour & Nouveautés</div>
                 <ul class="updates-list">
+                    <li><span class="updates-version">v1.4</span> **Omnibox Intelligente :** La barre supérieure détecte désormais si vous écrivez une URL (redirection directe) ou un mot-clé (déclenche instantanément une recherche).</li>
                     <li><span class="updates-version">v1.3</span> **Recherche Précise :** Intégration du système de détection intelligente. Taper "youtube", "google", "wikipedia" ou "github" affiche désormais le vrai site officiel sécurisé en position N°1 !</li>
                     <li><span class="updates-version">v1.2</span> **Navigation Intégrale :** Remplacement des faux liens morts (`#`). Tous les résultats générés ouvrent maintenant de vrais onglets et de vraies pages web.</li>
-                    <li><span class="updates-version">v1.1</span> **Barre d'adresse Active :** La barre supérieure du navigateur simulé est devenue fonctionnelle. Saisir une URL et appuyer sur *Entrée* déclenche une navigation réelle.</li>
                 </ul>
             </div>
         </div>
@@ -461,15 +461,23 @@
 
     <!-- ================= LOGIQUE JAVASCRIPT ================= -->
     <script>
+        // LOGIQUE AMÉLIORÉE POUR LA BARRE DU HAUT
         function checkBrowserNavigation(event) {
             if (event.key === "Enter") {
-                let saisieUrl = event.target.value.trim();
-                if (saisieUrl === "") return;
+                let saisie = event.target.value.trim();
+                if (saisie === "") return;
                 
-                if (!/^https?:\/\//i.test(saisieUrl)) {
-                    saisieUrl = "https://" + saisieUrl;
+                // Détection : si ça contient un point sans espace (ex: google.com) ou commence par http
+                if ((saisie.includes('.') && !saisie.includes(' ')) || saisie.startsWith('http')) {
+                    if (!/^https?:\/\//i.test(saisie)) {
+                        saisie = "https://" + saisie;
+                    }
+                    window.location.href = saisie; // On y va directement
+                } else {
+                    // Sinon, c'est un mot simple -> On lance une recherche interne automatique !
+                    document.getElementById('home-input').value = saisie;
+                    executeSearch(null, 'home-input');
                 }
-                window.location.href = saisieUrl;
             }
         }
 
@@ -494,7 +502,7 @@
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('results-view').style.display = 'flex';
 
-            document.getElementById('browser-url').value = "https://kill-man.github.io/Kill-search/?q=" + encodeURIComponent(textRecherche);
+            document.getElementById('browser-url').value = textRecherche;
 
             const panelImages = document.getElementById('images-panel');
             const grilleImages = document.getElementById('images-display-grid');
@@ -592,7 +600,7 @@
                 if (i % 6 === 0) {
                     htmlContenu += '<div class="result-item">' +
                         '<span class="result-url">' + lienFictif + '</span>' +
-                        '<div class="result-with-thumb">' +
+                        <div class="result-with-thumb">' +
                             '<div class="result-text-side">' +
                                 '<a href="' + lienReel + '" target="_blank" class="result-title">' + i + '. ' + titre + '</a><br>' +
                                 '<span class="result-snippet">' + snippet + '</span>' +
